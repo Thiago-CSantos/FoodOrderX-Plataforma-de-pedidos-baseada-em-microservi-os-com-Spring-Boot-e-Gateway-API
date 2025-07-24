@@ -40,6 +40,46 @@ Criar um sistema distribuído que simula a operação de pedidos em uma platafor
     - Atribuição de entregadores aos pedidos.
     - Rastreamento do status da entrega.
 
+```console
+                        +-----------------------+
+                        |   Cliente (Frontend)  |
+                        +-----------------------+
+                                  |
+                                  ▼
+                      +-------------------------+
+                      |   Spring Cloud Gateway  |
+                      |   (api.foodorderx.com)  |
+                      +-----------+-------------+
+                                  |
+     +----------------------------+------------------------------+
+     |                            |                              |
+     ▼                            ▼                              ▼
++------------+         +-------------------+        +----------------------+
+| Auth       |         | Restaurant Service|        | Order Service        |
+| Service    |         | (api/restaurants) |        | (api/orders)         |
+| (api/auth) |         +-------------------+        +----------------------+
+| - Login    |         | - Restaurantes    |        | - Criar pedido       |
+| - Registro |         | - Cardápios       |        | - Atualizar pedido   |
++------------+         +-------------------+        +----------------------+
+                                                                 |
+                                                                 ▼
+                                                   +------------------------+
+                                                   | Payment Service        |
+                                                   | (api/payments)         |
+                                                   | - Processa pagamentos  |
+                                                   | - Confirma transações  |
+                                                   +------------------------+
+                                                                 |
+                                                                 ▼
+                                                   +------------------------+
+                                                   | Delivery Service       |
+                                                   | (api/delivery)         |
+                                                   | - Atribui entregador    |
+                                                   | - Atualiza status      |
+                                                   +------------------------+
+
+```
+
 ---
 
 ## 🧪 Tecnologias Utilizadas
