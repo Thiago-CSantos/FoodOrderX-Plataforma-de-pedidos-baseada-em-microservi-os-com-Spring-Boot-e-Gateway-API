@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -39,20 +40,29 @@ public class RestaurantController {
         if (file == null) {
             return ResponseEntity.status(400).body("Por favor, insira uma imagem valida!");
         }
-        service.createRestaurant(new RequestRestaurant(name, description, address, ""), file);
+        service.createRestaurant(new RequestRestaurant(name, description, address, "", true), file);
         return ResponseEntity.status(201).body("Restaurante criado com sucesso");
     }
 
     //    (ADMIN)
-    @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateRestaurant(@PathVariable(value = "id") Long id, @RequestBody RequestRestaurant restaurant) {
-        return ResponseEntity.status(200).body("Hello world");
+    @PatchMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> updateRestaurant(
+            @PathVariable(value = "id") Long id,
+            @RequestPart("name") String name,
+            @RequestPart("description") String description,
+            @RequestPart("address") String address,
+            @RequestPart("open") String open,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        boolean isOpen = Boolean.parseBoolean(open);
+        service.updateRestaurant(id, new RequestRestaurant(name, description, address, "", isOpen), imageFile);
+        return ResponseEntity.status(200).body("Atualizado com sucesso!");
     }
 
     //    (ADMIN)
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteRestaurants(@PathVariable(value = "id") Long id) {
-        return ResponseEntity.status(200).body("Hello world");
+        service.deleteRestaurant(id);
+        return ResponseEntity.status(200).body("Deletado com sucesso "+ new Date());
     }
 
 }

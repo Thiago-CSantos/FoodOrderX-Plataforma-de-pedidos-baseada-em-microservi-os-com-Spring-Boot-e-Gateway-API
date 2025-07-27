@@ -63,7 +63,7 @@ public class RestaurantService {
                     requestRestaurant.description(),
                     requestRestaurant.address(),
                     filePath.toString(),
-                    true,
+                    requestRestaurant.open(),
                     null
             );
             repository.save(restaurant);
@@ -71,6 +71,41 @@ public class RestaurantService {
         } catch (IOException e) {
             throw new RuntimeException("Erro salvar imagem", e);
         }
+    }
+
+    public void updateRestaurant(Long id, RequestRestaurant dto, MultipartFile imageFile) {
+        Restaurant r = repository.findById(id).orElseThrow(() -> new RuntimeException("Restaurante não encontrado"));
+
+        if (dto.name() != null) r.setName(dto.name());
+        if (dto.description() != null) r.setDescription(dto.description());
+        if (dto.address() != null) r.setAddress(dto.address());
+        r.setOpen(dto.open());
+
+        if (imageFile != null) {
+            try {
+                File uploadDir = new File(IMAGE_FOLDER);
+
+                if (!uploadDir.exists()) {
+                    System.out.println(uploadDir.mkdirs());
+                }
+
+                String filename = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+                Path filePath = Paths.get(IMAGE_FOLDER + filename);
+
+                Files.write(filePath, imageFile.getBytes());
+
+                r.setImageUrl(filePath.toString());
+            } catch (IOException e) {
+                throw new RuntimeException("Erro salvar imagem", e);
+            }
+        }
+
+        repository.save(r);
+    }
+
+    public void deleteRestaurant(Long id) {
+        Restaurant r = repository.findById(id).orElseThrow(() -> new RuntimeException("Erro ao buscar"));
+        repository.delete(r);
     }
 
 }
