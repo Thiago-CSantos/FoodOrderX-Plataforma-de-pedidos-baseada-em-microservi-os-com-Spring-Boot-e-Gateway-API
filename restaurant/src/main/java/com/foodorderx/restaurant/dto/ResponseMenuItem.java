@@ -1,36 +1,16 @@
-package com.foodorderx.restaurant.entity;
+package com.foodorderx.restaurant.dto;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "menu_item")
-public class MenuItem {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+public class ResponseMenuItem {
     private Long id;
-    @Column(name = "name")
     private String name;
-    @Column(name = "description")
     private String description;
-    @Column(name = "price")
     private Double price;
-    @Column(name = "image_url")
     private String imageUrl;
-    @ManyToOne
-    private Restaurant restaurant;
 
-    public MenuItem() {
+    public ResponseMenuItem() {
     }
 
-    public MenuItem(String name, String description, Double price, String imageUrl, Restaurant restaurant) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.imageUrl = imageUrl;
-        this.restaurant = restaurant;
-    }
-
-    public MenuItem(String name, String description, Double price, String imageUrl) {
+    public ResponseMenuItem(String name, String description, Double price, String imageUrl) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -68,9 +48,4 @@ public class MenuItem {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
-    public Restaurant getRestaurant() {
-        return restaurant;
-    }
-
 }
