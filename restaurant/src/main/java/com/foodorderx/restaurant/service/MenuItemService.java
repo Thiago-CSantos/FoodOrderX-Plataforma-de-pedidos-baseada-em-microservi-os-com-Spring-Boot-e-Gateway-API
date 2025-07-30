@@ -2,6 +2,7 @@ package com.foodorderx.restaurant.service;
 
 import com.foodorderx.restaurant.dto.RequestMenuItem;
 import com.foodorderx.restaurant.dto.ResponseMenuItem;
+import com.foodorderx.restaurant.dto.ResponseRestaurantWithMenuDTO;
 import com.foodorderx.restaurant.entity.MenuItem;
 import com.foodorderx.restaurant.entity.Restaurant;
 import com.foodorderx.restaurant.repository.MenuItemRepository;
@@ -29,20 +30,30 @@ public class MenuItemService {
     @Autowired
     RestaurantRepository restaurantRepository;
 
-    public List<ResponseMenuItem> findAllRestaurantMenu(Long id) {
-        List<MenuItem> list = repository.findMenuItemsByRestaurantId(id);
+    public ResponseRestaurantWithMenuDTO findAllRestaurantMenu(Long restaurantId) {
 
-        List<ResponseMenuItem> responseMenuItem = list.stream()
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RuntimeException("Restaurante não encontrado"));
+
+        List<ResponseMenuItem> menuItems = repository.findMenuItemsByRestaurantId(restaurantId)
+                .stream()
                 .map(m -> new ResponseMenuItem(
+                        m.getId(),
                         m.getName(),
                         m.getDescription(),
                         m.getPrice(),
                         m.getImageUrl()
                 )).toList();
 
-        System.out.println(responseMenuItem);
-
-        return responseMenuItem;
+        return new ResponseRestaurantWithMenuDTO(
+                restaurant.getId(),
+                restaurant.getName(),
+                restaurant.getDescription(),
+                restaurant.getAddress(),
+                restaurant.getImageUrl(),
+                restaurant.isOpen(),
+                menuItems
+        );
     }
 
     public void createMenuItem(Long id, RequestMenuItem r_menuItem, MultipartFile imageFile) {
@@ -74,6 +85,39 @@ public class MenuItemService {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public void updateItemMenu(Long itemId, RequestMenuItem r_menuItem, MultipartFile imageFile) {
+
+        MenuItem menuItem = repository.findById(itemId).orElseThrow(() -> new RuntimeException("Erro ao buscar item do menu"));
+
+        File uploadDir = new File(IMAGE_FOLDER);
+        if (r_menuItem.name() != null) menuItem.setName(r_menuItem.name());
+        if (r_menuItem.description() != null) menuItem.setDescription(r_menuItem.description());
+        if (r_menuItem.price() != null) menuItem.setPrice(r_menuItem.price());
+
+        try {
+            if (imageFile != null) {
+                if (!uploadDir.exists()) {
+                    System.out.println(uploadDir.mkdirs());
+                }
+
+                String filename = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+                Path filePath = Paths.get(IMAGE_FOLDER + filename);
+
+                Files.write(filePath, imageFile.getBytes());
+            }
+            repository.save(menuItem);
+
+        } catch (RuntimeException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteItemMenu(Long itemId) {
+        MenuItem item = repository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item do menu não encontrado"));
+        repository.delete(item);
     }
 
 }

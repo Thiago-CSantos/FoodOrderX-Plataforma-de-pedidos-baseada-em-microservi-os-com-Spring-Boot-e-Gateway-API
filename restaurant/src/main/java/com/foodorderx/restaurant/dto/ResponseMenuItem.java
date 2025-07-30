@@ -17,6 +17,18 @@ public class ResponseMenuItem {
         this.imageUrl = imageUrl;
     }
 
+    public ResponseMenuItem(Long id, String name, String description, Double price, String imageUrl) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.imageUrl = imageUrl;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
